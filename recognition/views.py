@@ -3,6 +3,7 @@ from sre_constants import SUCCESS
 from tracemalloc import start
 from django.db import reset_queries
 from django.shortcuts import render,redirect
+from matplotlib.style import context
 from .forms import usernameForm,DateForm,UsernameAndDateForm, DateForm_2
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -55,7 +56,12 @@ def username_present(username):
 	return False
 
 
-def create_dataset(username):
+def video4(request,username):
+	return StreamingHttpResponse(create_dataset(request,username),
+                    content_type='multipart/x-mixed-replace; boundary=frame')
+
+
+def create_dataset(request,username):
 	id = username
 	if(os.path.exists('face_recognition_data/training_dataset/{}/'.format(id))==False):
 		os.makedirs('face_recognition_data/training_dataset/{}/'.format(id))
@@ -119,10 +125,13 @@ def create_dataset(username):
 			# Before continuing to the next loop, I want to give it a little pause
 			# waitKey of 100 millisecond
 			cv2.waitKey(50)
-
+		ret,buffer=cv2.imencode('.jpg',frame)
+		frame=buffer.tobytes()
+		yield(b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 		#Showing the image in another window
 		#Creates a window with window name "Face" and with the image img
-		cv2.imshow("Add Images",frame)
+		# cv2.imshow("Add Images",frame)
 		#Before closing it we need to give a wait command, otherwise the open cv wont work
 		# @params with the millisecond of delay 1
 		cv2.waitKey(1)
@@ -470,8 +479,10 @@ def add_photos(request):
 		data = request.POST.copy()
 		username=data.get('username')
 		if username_present(username):
-			create_dataset(username)
 			messages.success(request, f'Dataset Created')
+			context = {}
+			context['user'] = username
+			return render(request,"recognition/create_dataset.html",context)
 			return redirect('add-photos')
 		else:
 			messages.warning(request, f'No such username found. Please register employee first.')
@@ -479,6 +490,7 @@ def add_photos(request):
 	else:
 			form=usernameForm()
 			return render(request,'recognition/add_photos.html', {'form' : form})
+
 
 def index_in(request):
 	return render(request,"recognition/inatt.html")
@@ -509,13 +521,12 @@ def mark_your_attendance(request):
 		count[encoder.inverse_transform([i])[0]] = 0
 		present[encoder.inverse_transform([i])[0]] = False
 
-	vs = VideoStream(src=0,framerate=32).start()
+	vs = VideoStream(src=0).start()
 	sampleNum = 0
 	start_timee=time.time()
-	duration = 5
+	duration = 10
 	while((time.time()-start_timee)<duration):
 		frame = vs.read()
-		print(frame)
 		frame = imutils.resize(frame ,width = 800)
 		gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 		faces = detector(gray_frame,0)
@@ -540,17 +551,17 @@ def mark_your_attendance(request):
 					log_time[pred] = datetime.datetime.now()
 					count[pred] = count.get(pred,0) + 1
 					print(pred, present[pred], count[pred])
-				cv2.putText(frame, str(person_name)+ str(prob), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
+				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 			else:
 				person_name="unknown"
-				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
-			ret,buffer=cv2.imencode('.jpg',frame)
-			frame=buffer.tobytes()
-			yield(b'--frame\r\n'
+				# cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
+		ret,buffer=cv2.imencode('.jpg',frame)
+		frame=buffer.tobytes()
+		yield(b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 			# Before continuing to the next loop, I want to give it a little pause
 			# waitKey of 100 millisecond
-			#cv2.waitKey(50) 
+		# cv2.waitKey(10) 
 
 		#Showing the image in another window
 		#Creates a window with window name "Face" and with the image img
@@ -567,6 +578,15 @@ def mark_your_attendance(request):
 	# destroying all the windows
 	cv2.destroyAllWindows()
 	update_attendance_in_db_in(present)
+
+
+def index_out(request):
+	return render(request,"recognition/outatt.html")
+
+
+def video3(request):
+	return StreamingHttpResponse(mark_your_attendance_out(request),
+                    content_type='multipart/x-mixed-replace; boundary=frame')
 
 
 def mark_your_attendance_out(request):
@@ -620,18 +640,20 @@ def mark_your_attendance_out(request):
 					log_time[pred] = datetime.datetime.now()
 					count[pred] = count.get(pred,0) + 1
 					print(pred, present[pred], count[pred])
-				cv2.putText(frame, str(person_name)+ str(prob), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
+				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 			else:
 				person_name="unknown"
-				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
-			
-			#cv2.putText()
+				# cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
+		ret,buffer=cv2.imencode('.jpg',frame)
+		frame=buffer.tobytes()
+		yield(b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 			# Before continuing to the next loop, I want to give it a little pause
 			# waitKey of 100 millisecond
 			#cv2.waitKey(50)
 		#Showing the image in another window
 		#Creates a window with window name "Face" and with the image img
-		cv2.imshow("Mark Attendance- Out - Press q to exit",frame)
+		
 		#Before closing it we need to give a wait command, otherwise the open cv wont work
 		# @params with the millisecond of delay 1
 		#cv2.waitKey(1)
@@ -644,14 +666,18 @@ def mark_your_attendance_out(request):
 	#destroying all the windows
 	cv2.destroyAllWindows()
 	update_attendance_in_db_out(present)
-	return redirect('home')
 
 
 def index(request):
 	return render(request,"recognition/hand_det.html")
 
 
-def handdet():
+def video(request):
+	return StreamingHttpResponse(handdet(request),
+                    content_type='multipart/x-mixed-replace; boundary=frame')
+
+
+def handdet(request):
 	start = time.time()
 	mpHands = mp.solutions.hands # initialize mediapipe
 	hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
@@ -662,7 +688,7 @@ def handdet():
 	f.close()
 	capture_duration = 5
 	flag = 1
-	cap = VideoStream(src=0,framerate=32).start()
+	cap = VideoStream(src=0).start()
 	start_time = time.time() 
 	while((time.time()-start_time)<capture_duration):
 		success = True
@@ -673,7 +699,7 @@ def handdet():
 			global className
 			frame = cap.read()
 			x, y, c = frame.shape
-			frame = cv2.flip(frame, 1) # Flip the frame vertically
+			# frame = cv2.flip(frame, 1) # Flip the frame vertically
 			framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 			result = hands.process(framergb) # Get hand landmark prediction
 			className = '' 
@@ -703,10 +729,6 @@ def handdet():
 	cap.stop()
 	cv2.destroyAllWindows()
 	
-	
-def video(request):
-	return StreamingHttpResponse(handdet(),
-                    content_type='multipart/x-mixed-replace; boundary=frame')
 
 def action(request):
 	return render(request,"recognition/action_done.html")

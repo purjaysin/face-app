@@ -37,7 +37,10 @@ urlpatterns = [
     path('not_authorised', recog_views.not_authorised, name='not-authorised'),
     path('hand_det',recog_views.index, name='hand-det'),
     path('inattendance',recog_views.index_in,name='in-attendance'),
-    path('video',recog_views.video,name="video"),
-    path('video2',recog_views.video2,name="video2"),
-    path('action_done',recog_views.action,name="action-done")
+    path('outattendance',recog_views.index_out,name="out-attendance"),
+    path('video',recog_views.video,name='video'),
+    path('video2',recog_views.video2,name='video2'),
+    path('video3',recog_views.video3,name='video3'),
+    path('action_done',recog_views.action,name='action-done'),
+    path('video4/<str:username>/',recog_views.video4,name='video4'),
 ]
