@@ -16,5 +16,8 @@ class Time(models.Model):
 	time=models.DateTimeField(null=True,blank=True)
 	out=models.BooleanField(default=False)
 	action_taken=models.CharField(max_length=200)
+
+class Attendance(models.Model):
+	person=models.IntegerField()
 	
 
