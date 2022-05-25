@@ -564,7 +564,7 @@ def mark_your_attendance(request):
 				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 			else:
 				person_name="unknown"
-				flag = 0
+				flag = 1
 				# cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 		ret,buffer=cv2.imencode('.jpg',frame)
 		frame=buffer.tobytes()
@@ -604,14 +604,23 @@ def present_attendance(flag):
 			a.save()
 	
 
-def marked(request):
+def marked_in(request):
+	obj = Attendance.objects.latest('id')
+	val = obj.person
+	if val == 1:
+		return redirect('in-attendance')
+	else:
+		return redirect('home')
+
+
+def marked_out(request):
 	obj = Attendance.objects.latest('id')
 	val = obj.person
 	if val == 1:
 		return redirect('hand-det')
 	else:
-		return redirect('home')
-
+		return redirect('out-attendance')
+	
 
 def index_out(request):
 	return render(request,"recognition/outatt.html")
@@ -641,9 +650,9 @@ def mark_your_attendance_out(request):
 	for i in range(no_of_faces):
 		count[encoder.inverse_transform([i])[0]] = 0
 		present[encoder.inverse_transform([i])[0]] = False
-
+	
+	flag = 0
 	vs = VideoStream().start()
-	sampleNum = 0
 	start_timee=time.time()
 	duration = 5
 	while((time.time()-start_timee)<duration):
@@ -659,6 +668,7 @@ def mark_your_attendance_out(request):
 			cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),1)
 			(pred,prob)=predict(face_aligned,svc)
 			if(pred!=[-1]):
+				flag = 1
 				person_name=encoder.inverse_transform(np.ravel([pred]))[0]
 				pred=person_name
 				if count[pred] == 0:
@@ -699,6 +709,7 @@ def mark_your_attendance_out(request):
 	#destroying all the windows
 	cv2.destroyAllWindows()
 	update_attendance_in_db_out(present)
+	present_attendance(flag)
 
 
 def index(request):

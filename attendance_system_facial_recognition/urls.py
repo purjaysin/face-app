@@ -43,5 +43,6 @@ urlpatterns = [
     path('video3',recog_views.video3,name='video3'),
     path('action_done',recog_views.action,name='action-done'),
     path('video4/<str:username>/',recog_views.video4,name='video4'),
-    path('marked',recog_views.marked,name='marked')
+    path('marked_in',recog_views.marked_in,name='marked-in'),
+    path('marked_out',recog_views.marked_out,name='marked-out'),
 ]
