@@ -1,6 +1,9 @@
 from distutils.util import strtobool
+from itertools import count
 from sre_constants import SUCCESS
+from traceback import print_tb
 from tracemalloc import start
+# from turtle import update
 from django.db import reset_queries
 from django.shortcuts import render,redirect
 from matplotlib.style import context
@@ -185,14 +188,14 @@ def update_attendance_in_db_in(present):
 			qs=Present.objects.get(user=user,date=today)
 		except:
 			qs= None
-		
+	
 		if qs is None:
 			if present[person]==True:
 						a=Present(user=user,date=today,present=True)
 						a.save()
-			else:
-				a=Present(user=user,date=today,present=False)
-				a.save()
+			# else:
+			# 	a=Present(user=user,date=today,present=False)
+			# 	a.save()
 		else:
 			if present[person]==True:
 				qs.present=True
@@ -324,10 +327,13 @@ def hours_vs_employee_given_date(present_qs,time_qs):
 		user=obj.user
 		times_in=time_qs.filter(user=user).filter(out=False)
 		times_out=time_qs.filter(user=user).filter(out=True)
+		obj1 = time_qs.filter(user_id=obj.user_id)
+		for x in obj1:
+			str = x.action_taken
+		obj.action_taken=str
 		times_all=time_qs.filter(user=user)
 		obj.time_in=None
 		obj.time_out=None
-		obj.hours=0
 		obj.hours=0
 		if (len(times_in)>0):			
 			obj.time_in=times_in.first().time
@@ -351,12 +357,12 @@ def hours_vs_employee_given_date(present_qs,time_qs):
 		df_break_hours.append(obj.break_hours)
 		obj.hours=convert_hours_to_hours_mins(obj.hours)
 		obj.break_hours=convert_hours_to_hours_mins(obj.break_hours)
-
+	 
+	
 	df = read_frame(qs)	
 	df['hours']=df_hours
 	df['username']=df_username
-	df["break_hours"]=df_break_hours
-
+	df['break_hours']=df_break_hours
 	sns.barplot(data=df,x='username',y='hours')
 	plt.xticks(rotation='vertical')
 	rcParams.update({'figure.autolayout': True})
@@ -416,6 +422,7 @@ def this_week_emp_count_vs_date():
 	plt.savefig('./recognition/static/recognition/img/attendance_graphs/this_week/1.png')
 	plt.close()
 
+
 #used
 def last_week_emp_count_vs_date():
 	today=datetime.date.today()
@@ -460,6 +467,7 @@ def last_week_emp_count_vs_date():
 def home(request):
 	return render(request, 'recognition/home.html')
 
+
 @login_required
 def dashboard(request):
 	if(request.user.username=='admin'):
@@ -469,6 +477,7 @@ def dashboard(request):
 		print("not admin")
 
 		return render(request,'recognition/employee_dashboard.html')
+
 
 @login_required
 def add_photos(request):
@@ -483,7 +492,7 @@ def add_photos(request):
 			context = {}
 			context['user'] = username
 			return render(request,"recognition/create_dataset.html",context)
-			return redirect('add-photos')
+			# return redirect('add-photos')
 		else:
 			messages.warning(request, f'No such username found. Please register employee first.')
 			return redirect('dashboard')
@@ -505,7 +514,6 @@ def mark_your_attendance(request):
 	detector = dlib.get_frontal_face_detector()
 	predictor = dlib.shape_predictor('face_recognition_data/shape_predictor_68_face_landmarks.dat')   #Add path to the shape predictor ######CHANGE TO RELATIVE PATH LATER
 	svc_save_path="face_recognition_data/svc.sav"	
-		
 	with open(svc_save_path, 'rb') as f:
 			svc = pickle.load(f)
 	fa = FaceAligner(predictor , desiredFaceWidth = 96)
@@ -677,8 +685,15 @@ def video(request):
                     content_type='multipart/x-mixed-replace; boundary=frame')
 
 
+def update_action_taken(className):
+	print(Time.objects.latest('id'))
+	obj = Time.objects.latest('id')
+	obj.action_taken = className
+	obj.save()
+
+
 def handdet(request):
-	start = time.time()
+	print(Time.objects.last())
 	mpHands = mp.solutions.hands # initialize mediapipe
 	hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
 	mpDraw = mp.solutions.drawing_utils
@@ -716,9 +731,6 @@ def handdet(request):
 				className = classNames[classID]
 				if flag == 1:
 					flag = 2
-			
-			toprint = int(capture_duration - (time.time() - start_time))
-			ans = str(toprint)
 			cv2.putText(frame, className, (60, 100), cv2.FONT_HERSHEY_DUPLEX, 
                             1, (0,0,255), 2, cv2.LINE_AA)
 			
@@ -726,12 +738,15 @@ def handdet(request):
 			frame=buffer.tobytes()
 			yield(b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 	cap.stop()
 	cv2.destroyAllWindows()
-	
+	update_action_taken(className)
+
 
 def action(request):
 	return render(request,"recognition/action_done.html")
+
 
 @login_required
 def train(request):
@@ -813,6 +828,8 @@ def view_attendance_date(request):
 			present_qs=Present.objects.filter(date=date)
 			if(len(time_qs)>0 or len(present_qs)>0):
 				qs=hours_vs_employee_given_date(present_qs,time_qs)
+				print("Hellooooooooooo")
+				# print(qs)
 				return render(request,'recognition/view_attendance_date.html', {'form' : form,'qs' : qs })
 			else:
 				messages.warning(request, f'No records for selected date.')
