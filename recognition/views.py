@@ -6,6 +6,7 @@ from tracemalloc import start
 # from turtle import update
 from django.db import reset_queries
 from django.shortcuts import render,redirect
+from django.urls import reverse
 from matplotlib.style import context
 from .forms import usernameForm,DateForm,UsernameAndDateForm, DateForm_2
 from django.contrib import messages
@@ -33,7 +34,7 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 import datetime
 from django_pandas.io import read_frame
-from users.models import Present, Time
+from users.models import Present, Time, Attendance
 import seaborn as sns
 import pandas as pd
 from django.db.models import Count
@@ -44,11 +45,11 @@ from matplotlib import rcParams
 import math
 from pydoc import classname
 import time
-from matplotlib.pyplot import flag
+from matplotlib.pyplot import flag, get
 import mediapipe as mp
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 
 
 mpl.use('Agg')
@@ -506,7 +507,7 @@ def index_in(request):
 
 
 def video2(request):
-	return StreamingHttpResponse(mark_your_attendance(request),
+		return StreamingHttpResponse(mark_your_attendance(request),
                     content_type='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -529,10 +530,10 @@ def mark_your_attendance(request):
 		count[encoder.inverse_transform([i])[0]] = 0
 		present[encoder.inverse_transform([i])[0]] = False
 
+	flag = 0
 	vs = VideoStream(src=0).start()
-	sampleNum = 0
 	start_timee=time.time()
-	duration = 10
+	duration = 5
 	while((time.time()-start_timee)<duration):
 		frame = vs.read()
 		frame = imutils.resize(frame ,width = 800)
@@ -546,6 +547,7 @@ def mark_your_attendance(request):
 			cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),1)
 			(pred,prob)=predict(face_aligned,svc)
 			if(pred!=[-1]):
+				flag = 1
 				person_name=encoder.inverse_transform(np.ravel([pred]))[0]
 				pred=person_name
 				if count[pred] == 0:
@@ -562,6 +564,7 @@ def mark_your_attendance(request):
 				cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 			else:
 				person_name="unknown"
+				flag = 0
 				# cv2.putText(frame, str(person_name), (x+6,y+h-6), cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,255,0),1)
 		ret,buffer=cv2.imencode('.jpg',frame)
 		frame=buffer.tobytes()
@@ -586,6 +589,28 @@ def mark_your_attendance(request):
 	# destroying all the windows
 	cv2.destroyAllWindows()
 	update_attendance_in_db_in(present)
+	present_attendance(flag)
+
+
+def present_attendance(flag):
+	Attendance.objects.all().delete()
+	for i in range(1):
+		try:
+			qs=Attendance.objects.get()
+		except:
+			qs=None
+		if qs is None:
+			a=Attendance(person=flag)
+			a.save()
+	
+
+def marked(request):
+	obj = Attendance.objects.latest('id')
+	val = obj.person
+	if val == 1:
+		return redirect('hand-det')
+	else:
+		return redirect('home')
 
 
 def index_out(request):
@@ -686,14 +711,12 @@ def video(request):
 
 
 def update_action_taken(className):
-	print(Time.objects.latest('id'))
 	obj = Time.objects.latest('id')
 	obj.action_taken = className
 	obj.save()
 
 
 def handdet(request):
-	print(Time.objects.last())
 	mpHands = mp.solutions.hands # initialize mediapipe
 	hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
 	mpDraw = mp.solutions.drawing_utils
@@ -828,8 +851,6 @@ def view_attendance_date(request):
 			present_qs=Present.objects.filter(date=date)
 			if(len(time_qs)>0 or len(present_qs)>0):
 				qs=hours_vs_employee_given_date(present_qs,time_qs)
-				print("Hellooooooooooo")
-				# print(qs)
 				return render(request,'recognition/view_attendance_date.html', {'form' : form,'qs' : qs })
 			else:
 				messages.warning(request, f'No records for selected date.')
