@@ -24,13 +24,6 @@ def hours_vs_date_every_employee():
 
 
 '''
-
-
-
-
-
-
-
 # Create your views here.
 
 @login_required
@@ -43,9 +36,6 @@ def register(request):
 			form.save() ###add user to database
 			messages.success(request, f'Employee registered successfully!')
 			return redirect('dashboard')
-		
-
-
 	else:
 		form=UserCreationForm()
 	return render(request,'users/register.html', {'form' : form})

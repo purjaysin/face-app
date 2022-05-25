@@ -15,5 +15,6 @@ class Time(models.Model):
 	date = models.DateField(default=datetime.date.today)
 	time=models.DateTimeField(null=True,blank=True)
 	out=models.BooleanField(default=False)
+	action_taken=models.CharField(max_length=200)
 	
 
