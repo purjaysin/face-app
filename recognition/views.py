@@ -37,14 +37,12 @@ mpl.use('Agg')
 
 
 def home(request):
-	return render(request, 'recognition/home.html')
+	return render(request, 'recognition/index.html')
 
 @login_required
 def dashboard(request):
 	if(request.user.username=='admin'):
-		return render(request, 'recognition/admin_dashboard.html')
-	else:
-		return render(request,'recognition/employee_dashboard.html')
+		return render(request, 'recognition/admin_page.html')
 
 
 # UTILITY VIEWS
@@ -215,7 +213,7 @@ def mark_your_attendance(request):
 	flag = 0
 	vs = VideoStream(src=0).start()
 	start_timee=time.time()
-	duration = 5
+	duration = 6
 	while((time.time()-start_timee)<duration):
 		frame = vs.read()
 		frame = imutils.resize(frame ,width = 800)
@@ -283,7 +281,7 @@ def mark_your_attendance_out(request):
 	flag = 0
 	vs = VideoStream().start()
 	start_timee=time.time()
-	duration = 5
+	duration = 6
 	while((time.time()-start_timee)<duration):
 		frame = vs.read()
 		frame = imutils.resize(frame ,width = 800)
@@ -324,6 +322,8 @@ def mark_your_attendance_out(request):
 
 
 # DETECTING HAND-GESTURE FOR ACTION
+def tutorial(request):
+	return render(request,"recognition/tutorial.html")
 def index(request):
 	return render(request,"recognition/hand_det.html")
 def video(request):
@@ -337,7 +337,7 @@ def handdet(request):
 	f = open('recognition/gesture.names', 'r') 
 	classNames = f.read().split('\n')
 	f.close()
-	capture_duration = 5
+	capture_duration = 8
 	flag = 1
 	cap = VideoStream(src=0).start()
 	start_time = time.time() 

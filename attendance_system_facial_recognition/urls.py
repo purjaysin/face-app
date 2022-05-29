@@ -43,4 +43,6 @@ urlpatterns = [
     path('video4/<str:username>/',users_views.video4,name='video4'),
     path('marked_in',recog_views.marked_in,name='marked-in'),
     path('marked_out',recog_views.marked_out,name='marked-out'),
+    path('tutorial',recog_views.tutorial,name='tutorial'),
+    
 ]
