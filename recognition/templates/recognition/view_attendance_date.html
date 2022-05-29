@@ -45,21 +45,6 @@
 </nav>
 
 
-<div class="container">
-  <div style="width: 400px">
- <form method="POST" >
-      {% csrf_token %}
-      <fieldset class="form-group">
-        <legend class="border-bottom mb-4"> Select Date </legend>
-        {{form| crispy}}
-      </fieldset>
-
-      <div class="form-group">
-        <button class="btn btn-outline-info" type="submit" value="Create"> Submit</button>
-      </div>
-    </form>
-
-
 </div>
 {% if qs %}
 
@@ -105,11 +90,6 @@
 </tbody>
 </table>
 
- <div class="card" style=" margin-top: 5em; margin-bottom: 10em;">
-  <img class="card-img-top" src="{% static 'recognition/img/attendance_graphs/hours_vs_employee/1.png'%}" alt="Card image cap">
-  <div class="card-body">
-    <p class="card-text" style="text-align: center;">Number of hours worked each day.</p>
-  </div>
 </div>
 
 
