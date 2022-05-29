@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="description" content="purjaysin">
     <meta charset="UTF-8" />
-	<title>Tutorial</title>
+	<title>Admin dashboard</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="{% static 'plugins/themefisher-font/style.css' %}">
 	<link rel="stylesheet" href="{% static 'plugins/bootstrap/dist/css/bootstrap.min.css' %}">
@@ -55,66 +55,78 @@
           </nav>
         </div>
       </header>
+      <div class="col-lg-12" style="padding-top: 100px;">
+        {% if messages %}
+             {% for message in messages%}
+             <div class="alert alert-{{message.tags}}" > {{message}}
+             </div>
+             {%endfor %}
+       
+           {%endif%}
+         </div>
     <section class="bg-one about section">
         <div class="container">
             <div class="row">
-            
                 <!-- section title -->
                 <div class="title text-center wow fadeIn" data-wow-duration="1500ms" >
-                    <h2>About <span class="color">Us</span> </h2>
+                    <h2>Welcome to your dashboard, <span class="color">what next?</span> </h2>
                     <div class="border"></div>
                 </div>
-                <!-- /section title -->
-                
-                <!-- About item -->
                 <div class="col-md-4 text-center wow fadeInUp" data-wow-duration="500ms" >
                     <div class="block">							
                         <div class="icon-box">
-                            <i class="tf-tools"></i>
+                            <a href="{%url 'in-attendance' %}"><i class="tf-dial"></i></a>
                         </div>					
-                        <!-- Express About Yourself -->
                         <div class="content text-center">
-                            <h3 class="ddd">We're Creative</h3>								
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit, nihil, libero, perspiciatis eos provident laborum eum dignissimos</p>
+                            <h3 class="ddd"><a href="{%url 'in-attendance' %}">Start the workers' in-marking procedure</a></h3>								
+                            <p><a datahref="{%url 'in-attendance' %}">Since the workers are here, ask them to get themselves marked in and begin their work.</a></p>
                         </div>
                     </div>
                 </div> 
-                <!-- End About item -->
-                
-                <!-- About item -->
+
                 <div class="col-md-4 text-center wow fadeInUp" data-wow-duration="500ms" data-wow-delay="250ms">
                     <div class="block">
                         <div class="icon-box">
-                            <i class="tf-strategy"></i>
+                            <a href="{%url 'out-attendance' %}"><i class="tf-anchor2"></i></a>
                         </div>
-                        <!-- Express About Yourself -->
+
                         <div class="content text-center">
-                            <h3>We're Professional</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit, nihil, libero, perspiciatis eos provident laborum eum dignissimos</p>
+                            <h3><a href="{%url 'out-attendance' %}">Start the workers' out-marking procedure</a></h3>	
+                            <p><a href="{%url 'out-attendance' %}">Since the workers are done for today, ask them to get themselves marked out with their choices.</a></p>
                         </div>
                     </div>
                 </div> 
-                <!-- End About item -->
-                
-                <!-- About item -->					
+			
                 <div class="col-md-4 text-center wow fadeInUp" data-wow-duration="500ms" data-wow-delay="500ms">
                     <div class="block kill-margin-bottom">
                         <div class="icon-box">
-                            <i class="tf-anchor2"></i>
+                            <a href="{%url 'home' %}"><i class="tf-genius"></i></a>
                         </div>
-                        <!-- Express About Yourself -->
                         <div class="content text-center">
-                            <h3>We're Genius</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit, nihil, libero, perspiciatis eos provident laborum eum dignissimos</p>
+                            <h3><a href="{%url 'home' %}">View today's status of workers</a></h3>
+                            <p><a href="{%url 'home' %}">Look at the attendance of your workers along with wage choices they have made and more.</a></p>
                         </div>
                     </div>
                 </div> 
-                <!-- End About item -->
                 
-            </div> 		<!-- End row -->
-        </div>   	<!-- End container -->
-    </section>   <!-- End section -->
+            </div> 	
+            <div class="row">
+                
+                <div class="col-md-4 text-center wow fadeInUp" data-wow-duration="500ms" >
+                    <div class="block">							
+                        <div class="icon-box">
+                            <a href="{%url 'register' %}"><i class="tf-tools"></i></a>
+                        </div>					
+                        <div class="content text-center">
+                            <h3><a href="{%url 'register' %}">Add worker</a></h3>							
+                            <p><a href="{%url 'register' %}">Add a new worker to your database.</a></p>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
 
+        </div>   
+    </section>   
 
 <footer id="footer" class="bg-one">
 	<div class="container">

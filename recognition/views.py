@@ -20,6 +20,7 @@ import numpy as np
 from django.contrib.auth.decorators import login_required
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+# from datetime import datetime
 import datetime
 from django_pandas.io import read_frame
 from users.models import Present, Time, Attendance
@@ -476,21 +477,24 @@ def view_attendance_date(request):
 	qs=None
 	time_qs=None
 	present_qs=None
-	if request.method=='POST':
-		form=DateForm(request.POST)
-		if form.is_valid():
-			date=form.cleaned_data.get('date')
-			time_qs=Time.objects.filter(date=date)
-			present_qs=Present.objects.filter(date=date)
-			if(len(time_qs)>0 or len(present_qs)>0):
-				qs=hours_vs_employee_given_date(present_qs,time_qs)
-				return render(request,'recognition/view_attendance_date.html', {'form' : form,'qs' : qs })
-			else:
-				messages.warning(request, f'No records for selected date.')
-				return redirect('view-attendance-date')
+	date=datetime.now()
+	print("YESSS")
+	print(date)
+	time_qs=Time.objects.filter(date=date)
+	present_qs=Present.objects.filter(date=date)
+	print("hello")
+	print(time_qs)
+	print("hello")
+	print(present_qs)
+	if(len(time_qs)>0 or len(present_qs)>0):
+		qs=hours_vs_employee_given_date(present_qs,time_qs)
+		return render(request,'recognition/view_attendance_date.html', {'qs' : qs })
 	else:
-			form=DateForm()
-			return render(request,'recognition/view_attendance_date.html', {'form' : form, 'qs' : qs})
+		messages.warning(request, f'No records for selected date.')
+		return redirect('view-attendance-date')
+	# else:
+	# 		form=DateForm()
+	# 		return render(request,'recognition/view_attendance_date.html', {'form' : form, 'qs' : qs})
 
 def hours_vs_employee_given_date(present_qs,time_qs):
 	register_matplotlib_converters()
