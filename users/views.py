@@ -34,7 +34,7 @@ def register(request):
 			form.save()
 			messages.success(request, f'Worker added successfully!')
 			if username_present(form.cleaned_data.get("username")):
-				messages.success(request, f'Dataset Created. Your model is being trained in the background.')
+				messages.success(request, f'Dataset Created. Please wait till your model is being trained in the background.')
 				context = {}
 				context['user'] = form.cleaned_data.get("username")
 				return render(request,'recognition/create_datase.html', context)
@@ -138,7 +138,7 @@ def train(request):
 	with open(svc_save_path, 'wb') as f:
 		pickle.dump(svc,f)
 	messages.success(request, f'Training Complete.')
-	return render(request,"recognition/home.html")
+	return redirect('dashboard')
 
 
 

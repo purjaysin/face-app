@@ -33,3 +33,12 @@ toml==0.10.2
 typed-ast==1.4.2
 typing-extensions==3.7.4.3
 urllib3==1.26.4
+sqlparse==0.4.1
+systemd-python==234
+tensorboard==2.8.0
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow==2.8.0
+tensorflow-io-gcs-filesystem==0.25.0
+scikit-learn==0.21.2
+
