@@ -9,7 +9,7 @@ Karyance is a facial recognition+hand-gesture recognition project that wishes to
 ## Running Karyance<br>
 Please run pip install -r requirements.txt<br>
 Open the directory with manage.py in it and run python3 manage.py runserver in the console. <br>
-PS. If you face errors while installation on python 3.9.0, please shift to python version 3.8.0(error-free).<br>
+PS. If you face errors while installation on python 3.9.0, please shift to python version 3.8.2(error-free).<br>
 IMP: (after running)
 The console might take a little time and show a few warnings based on incomatible tensorflow or numpy versions in the running system.
 Please ignore them as they are only warnings.<br>
