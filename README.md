@@ -2,8 +2,7 @@
 ## Karyance: Submission for Microsoft Engage 2022<br>
 ### Submission by:
 Puranjay Singh<br>
-(purjaysin@outlook.com
-9650360438)<br>
+(purjaysin@outlook.com)<br>
 ## What is Karyance?<br>
 Karyance is a facial recognition+hand-gesture recognition project that wishes to solve the problems faced by the dail-wage workers and other working class people.<br>
 ## Running Karyance<br>
