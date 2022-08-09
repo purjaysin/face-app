@@ -1,5 +1,4 @@
 # Karyance
-## Karyance: Submission for Microsoft Engage 2022<br>
 ### Submission by:
 Puranjay Singh<br>
 (purjaysin@outlook.com)<br>
