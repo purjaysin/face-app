@@ -7,7 +7,7 @@ Puranjay Singh<br>
 Karyance is a facial recognition+hand-gesture recognition project that wishes to solve the problems faced by the daily-wage workers and other working class people.<br>
 ## Running Karyance<br>
 Run pip install -r requirements.txt<br>
-Open the directory with manage.py in it and run python3 manage.py runserver in the console. <br>
+Run python3 manage.py runserver in the console. <br>
 ## Explore
 To log-in the the demo employer account, use 'admin' as both username and password.<b>
 It will have pre-existing database of  workers as shown in the video.
